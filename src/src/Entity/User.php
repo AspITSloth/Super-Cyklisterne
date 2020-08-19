@@ -4,11 +4,12 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -17,69 +18,91 @@ class User
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="string", length=180, unique=true)
+     */
+    private $username;
+
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $password;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
     /**
-     * @ORM\Column(type="text")
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
      */
-    private string $name;
-
-    public function getName()
+    public function getUsername(): string
     {
-        return $this->name;
+        return (string) $this->username;
     }
 
-    public function setName($name)
+    public function setUsername(string $username): self
     {
-        $this->name = $name;
+        $this->username = $username;
+
+        return $this;
     }
 
     /**
-     * @ORM\Column(type="text")
+     * @see UserInterface
      */
-    private string $email;
-
-    public function getEmail()
+    public function getRoles(): array
     {
-        return $this->email;
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
     }
 
-    public function setEmail($email)
+    public function setRoles(array $roles): self
     {
-        $this->email = $email;
+        $this->roles = $roles;
+
+        return $this;
     }
 
     /**
-     * @ORM\Column(type="text")
+     * @see UserInterface
      */
-    private string $password; 
-
     public function getPassword()
     {
         return $this->password;
     }
 
-    public function setPassword($password)
+    /**
+     * @see UserInterface
+     */
+    public function getSalt()
     {
-        $this->password = $password;
+        // not needed for apps that do not check user passwords
     }
 
     /**
-     * @ORM\Column(type="blob", nullable=true)
-     * @ORM\OneToMany(targetEntity="images", orphanRemoval=true)
+     * @see UserInterface
      */
-    private array $images;
-
-    public function getImages()
+    public function eraseCredentials()
     {
-        return $this->images;
+        // If you store any temporary, sensitive data on the user, clear it here
+        // $this->plainPassword = null;
     }
 
-    public function setImages($images)
+    public function setPassword(string $password): self
     {
-        $this->images = $images;
+        $this->password = $password;
+
+        return $this;
     }
 }

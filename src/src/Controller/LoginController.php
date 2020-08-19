@@ -1,20 +1,19 @@
-<?php 
+<?php
+
 namespace App\Controller;
 
-use App\Entity\User;
-
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use App\Entity\User;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-class MemberController extends AbstractController
+class LoginController extends AbstractController
 {
     public function newUserFormBuilder($user)
     {
@@ -27,11 +26,44 @@ class MemberController extends AbstractController
         return $form;
     }
 
-    
-    // /**
-    //  * @Route("/login")
-    //  * @Method({"GET", "POST"})
-    //  */
+    /**
+     * @Route("/login", name="app_login")
+     */
+    public function login(AuthenticationUtils $authenticationUtils, Request $request): Response
+    {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('target_path');
+        }
+
+        $user = new User();
+
+        $form = $this->newUserFormBuilder($user);
+
+        $form->handleRequest($request);        
+        
+        if ($form->isSubmitted() && $form->isValid())
+        {
+            $user = $form->getData();
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->redirectToRoute("member_list");
+        }
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('security/login.html.twig', ['last_username' => $lastUsername, 'error' => $error, 'form' => $form->createView()]);
+    }
+
+    /**
+     * @Route("/signup")
+     * @Method({"GET", "POST"})
+     */
     public function create(Request $request)
     {   
         $user = new User();
@@ -51,50 +83,14 @@ class MemberController extends AbstractController
             return $this->redirectToRoute("member_list");
         }
 
-        return $this->render('members/membercreation.html.twig', array("form" => $form->createView()));
+        return $this->render('security/signup.html.twig', array("form" => $form->createView()));
     }
 
     /**
-     * @Route("/", name="index")
-     * @Method({"GET", "POST"})
-    */
-    public function index(Request $request)
-    {    
-        $user = new User();
-
-        $form = $this->newUserFormBuilder($user);
-
-        $form->handleRequest($request);        
-        
-        if ($form->isSubmitted() && $form->isValid())
-        {
-            $user = $form->getData();
-
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($user);
-            $entityManager->flush();
- 
-            return $this->redirectToRoute("member_list");
-        }
-
-        return $this->render("index.html.twig", array("form" => $form->createView()));
-    }
-
-    /**
-     * @Route("/user/edit", name="edit_user")
+     * @Route("/logout", name="app_logout")
      */
-    public function edit()
+    public function logout()
     {
-        //return $this->render();
-    }
-
-    /**
-     * @Route("/members", name="member_list")
-     */
-    public function memberList()
-    {
-        $users = $this->getDoctrine()->getRepository(User::class)->findAll();
-
-        return $this->render('members/memberList.html.twig', array("users" => $users));
+        throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 }

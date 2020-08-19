@@ -2,15 +2,13 @@
 
     <div class="row">
 
-        <div class="col-sm">
-
-            <form action="POST">
-
+        <div class="col-sm m-4">
+        
                 <h5>LOG IND HER</h5>
 
                 <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" class="form-control" placeholder="Indtast email">
+                    <label for="username">Brugernavn:</label>
+                    <input type="username" class="form-control" placeholder="Indtast brugernavn">
                 </div>
 
                 <div class="form-group">
@@ -20,39 +18,15 @@
 
                 <button type="submit" class="btn btn-primary">Login</button>
 
-            </form>
-
         </div>
 
-        <div class="col-sm">
-                
-            <form action="POST">
+        <div class="col-sm m-4">
 
                 <h5>OPRET BRUGER HER</h5>
 
-                <div class="form-group">
-                    <label for="email">Din Email:</label>
-                    <input type="email" class="form-control" placeholder="Indtast email">
-                </div>
-
-                <div class="form-group">
-                    <label for="name">Dit Navn:</label>
-                    <input type="text" class="form-control" placeholder="Indtast navn">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Kodeord:</label>
-                    <input type="password" class="form-control" placeholder="Indtast kodeord">
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Gentag Kodeord:</label>
-                    <input type="password" class="form-control" placeholder="Gentag kodeord">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Opret Bruger</button>
-
-            </form>
+                {{ form_start(form) }}
+                {{ form_widget(form) }}
+                {{ form_end(form) }}
         
         </div>
     </div>
